@@ -14,7 +14,6 @@ jobs:
         run: |
           echo "🚀 Starting pings at $(date)"
           
-          # HF Space URLs
           SPACES=(
             "https://huggingface.co/spaces/Jetherruns/Movies-Recommenders"
             "https://huggingface.co/spaces/Jetherruns/tangkhul-translator"
@@ -22,7 +21,8 @@ jobs:
 
           for url in "${SPACES[@]}"; do
             echo "Pinging → $url"
-            if curl -I -L --fail --max-time 20 --silent "$url" > /dev/null; then
+            if curl -L --fail --max-time 30 -H "User-Agent: GitHub-Actions-KeepAwake" \
+                 --silent "$url" > /dev/null; then
               echo "✅ Success: $url"
             else
               echo "⚠️  Failed: $url"
