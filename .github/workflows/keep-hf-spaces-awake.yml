@@ -1,31 +1,31 @@
 name: Keep HF Spaces Awake
-
 on:
   schedule:
-    - cron: '*/10 * * * *'     # Every 10 minutes (recommended for free Spaces)
-  workflow_dispatch:           # Allows manual trigger from GitHub
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
 
 jobs:
   ping-spaces:
     runs-on: ubuntu-latest
-
     steps:
       - name: Ping Multiple Hugging Face Spaces
         run: |
           echo "🚀 Starting pings at $(date)"
-          
+
           SPACES=(
-            "https://huggingface.co/spaces/Jetherruns/Movies-Recommenders"
-            "https://huggingface.co/spaces/Jetherruns/tangkhul-translator"
+            "https://jetherruns-tangkhul-translator.hf.space"
           )
 
           for url in "${SPACES[@]}"; do
             echo "Pinging → $url"
-            if curl -L --fail --max-time 30 -H "User-Agent: GitHub-Actions-KeepAwake" \
-                 --silent "$url" > /dev/null; then
-              echo "✅ Success: $url"
+            STATUS=$(curl -L --max-time 60 --silent --write-out "%{http_code}" \
+              -H "User-Agent: GitHub-Actions-KeepAwake" \
+              -o /dev/null "$url")
+            echo "  HTTP status: $STATUS"
+            if [[ "$STATUS" -ge 200 && "$STATUS" -lt 400 ]]; then
+              echo "  ✅ Success: $url"
             else
-              echo "⚠️  Failed: $url"
+              echo "  ⚠️  Unexpected status $STATUS for $url"
             fi
           done
 
